@@ -23,7 +23,7 @@ func main() {
 	files := os.Args[1:]
 	if len(files) == 0 {
 	} else {
-		var n = flag.Int("n", 8, "number of threads")
+		var n = flag.Int("n", 32, "number of threads")
 		flag.Parse()
 
 		var threadNumber = *n
@@ -48,14 +48,10 @@ func scanLines(f *os.File, threadNumber int) {
 	fmt.Printf("%d thread(s) should created.\n", threadNumber)
 
 	// 创建指定数量的 channel 用于和一一对应的协程进行通讯
-	chs := make([] chan DownloadTask, threadNumber, threadNumber)
+	ch := make(chan DownloadTask)
 	for i := 0; i<threadNumber; i++ {
-		ch := make(chan DownloadTask)
-		chs[i] = ch
 		go download(ch)
 	}
-
-	var pos = 0
 
 	for input.Scan() {
 		line := input.Text()
@@ -70,24 +66,7 @@ func scanLines(f *os.File, threadNumber int) {
 				continue
 			}
 
-			// 挑选一个空闲协程，提交下载任务
-			for {
-				// pos 步进
-				if pos < threadNumber - 1 {
-					pos += 1
-				} else {
-					pos = 0
-				}
-
-				// fmt.Printf("pos: %d, len: %d, cap: %d\n", pos, len(chs[pos]), cap(chs[pos]))
-
-				if len(chs[pos]) == 0 {
-					// fmt.Printf("Ready to active #%d thread.\n", pos)
-					chs[pos] <- DownloadTask{url, size, code}
-
-					break
-				}
-			}
+			ch <- DownloadTask{url, size, code}
 		}
 	}
 }
