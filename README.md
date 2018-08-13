@@ -1,6 +1,7 @@
 # Google Open Image v4 图像下载器
 
 因为军科院的项目需要，得下载全套的 Google Open Image v4 图库给他们做图像识别训练用。
+https://storage.googleapis.com/openimages/web/index.html
 
 直接下载大块的文件常因为断线而反复重新下载。
 
